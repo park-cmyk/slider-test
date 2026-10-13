@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ビジネススライダー テスト</title>
+<style>
+:root{
+  --bg:#ffffff; --arc:#f3f4fa; --ink:#1b1f2a; --sub:#4b5263;
+  --btn:#dfe3f1; --btn-icon:#2f6fbc; --on:#2f6fbc;
+  --c1:#2f6fbc; --c2:#244a9a; --c3:#1f6f8b; --c4:#3b4f9e;
+  --ease:cubic-bezier(.65,.05,.2,1);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#10131b;--arc:#171b27;--ink:#eef0f6;--sub:#aab0c0;--btn:#262c40;--btn-icon:#8db6ee}
+}
+:root[data-theme="dark"]{--bg:#10131b;--arc:#171b27;--ink:#eef0f6;--sub:#aab0c0;--btn:#262c40;--btn-icon:#8db6ee}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Noto Sans JP","Hiragino Sans","Yu Gothic",system-ui,sans-serif;overflow:hidden}
+
+.stage{display:grid;grid-template-columns:minmax(260px,24vw) 1fr;height:100%;min-height:640px;position:relative}
+
+/* 左ナビ */
+.nav{position:relative;background:var(--arc);border-radius:0 60% 60% 0 / 0 50% 50% 0;margin:2vh 0}
+.nav button{
+  position:absolute;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  background:none;border:0;padding:0;cursor:pointer;color:var(--ink);font:inherit;text-align:center;
+  -webkit-tap-highlight-color:transparent;
+}
+.nav button:nth-child(1){left:42%;top:4%}
+.nav button:nth-child(2){left:62%;top:30%}
+.nav button:nth-child(3){left:62%;top:56%}
+.nav button:nth-child(4){left:42%;top:80%}
+.nav .ico{
+  width:84px;height:84px;border-radius:50%;background:var(--btn);color:var(--btn-icon);
+  display:grid;place-items:center;
+  box-shadow:0 8px 16px rgba(36,74,154,.18), inset 0 2px 0 rgba(255,255,255,.55);
+  transition:transform .35s var(--ease), box-shadow .25s ease, background .35s ease, color .35s ease;
+}
+.nav svg{width:38px;height:38px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.nav b{font-size:15px;line-height:1.3;font-weight:700}
+.nav small{font-size:11px;color:var(--sub);letter-spacing:.02em}
+
+/* hover: 拡大 */
+.nav button:hover .ico{transform:scale(1.18)}
+.nav button:hover b{color:var(--on)}
+/* pressed: 押している間 */
+.nav button:active .ico{
+  transform:scale(.94);
+  box-shadow:inset 0 5px 12px rgba(0,0,0,.28), inset 0 -2px 0 rgba(255,255,255,.2);
+  transition-duration:.08s;
+}
+/* 選択済み: 押し込まれたまま */
+.nav button[aria-pressed="true"] .ico{
+  background:var(--on);color:#fff;transform:scale(1.08);
+  box-shadow:inset 0 6px 14px rgba(0,0,0,.35), inset 0 -2px 0 rgba(255,255,255,.18), 0 0 0 6px rgba(47,111,188,.16);
+}
+.nav button[aria-pressed="true"]:hover .ico{transform:scale(1.18)}
+.nav button[aria-pressed="true"]:active .ico{transform:scale(1.0)}
+.nav button:focus-visible .ico{outline:3px solid var(--on);outline-offset:4px}
+
+/* 右スライダー */
+.viewport{position:relative;overflow:hidden;display:flex;align-items:center}
+.track{display:flex;gap:var(--gap);will-change:transform;transition:transform 1s var(--ease)}
+.card{
+  flex:0 0 var(--w);width:var(--w);border-radius:28px;color:#fff;padding:36px 36px 32px;
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  position:relative;overflow:hidden;
+  transform:scale(.88);opacity:.38;filter:saturate(.6);
+  transition:transform 1s var(--ease), opacity .8s ease, filter .8s ease;
+}
+.card.is-active{transform:scale(1);opacity:1;filter:none}
+.card:nth-child(1){background:var(--c1)}
+.card:nth-child(2){background:var(--c2)}
+.card:nth-child(3){background:var(--c3)}
+.card:nth-child(4){background:var(--c4)}
+.card .watermark{position:absolute;left:-40px;top:20px;width:170px;height:170px;opacity:.18;stroke:#fff;fill:none;stroke-width:3}
+.card h2{margin:0 0 20px;font-size:clamp(26px,2.6vw,40px);letter-spacing:.04em;position:relative}
+.card p{margin:0 0 26px;font-size:15px;line-height:1.9;max-width:34em;text-align:left;position:relative}
+.card .img{width:100%;aspect-ratio:16/9;border-radius:16px;margin-bottom:26px;position:relative;overflow:hidden;
+  background:
+    radial-gradient(circle at 70% 60%,rgba(255,255,255,.35),transparent 40%),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.08) 0 2px,transparent 2px 22px),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.08) 0 2px,transparent 2px 22px),
+    linear-gradient(135deg,rgba(0,0,0,.45),rgba(255,255,255,.1))}
+.card .img span{position:absolute;left:14px;bottom:10px;font-size:12px;opacity:.7}
+.card .more{
+  font:inherit;color:#fff;background:transparent;border:1.5px solid rgba(255,255,255,.8);border-radius:999px;
+  padding:14px 44px;font-size:15px;font-weight:700;cursor:pointer;transition:background .25s,color .25s,transform .2s;
+}
+.card .more:hover{background:#fff;color:var(--c2)}
+.card .more:active{transform:scale(.96)}
+
+@media (max-width:760px){
+  .stage{grid-template-columns:1fr;grid-template-rows:auto 1fr;min-height:0}
+  .nav{margin:0;border-radius:0 0 40px 40px;display:flex;justify-content:space-around;padding:14px 4px 10px;height:auto}
+  .nav button{position:static;transform:none}
+  .nav .ico{width:56px;height:56px}.nav svg{width:26px;height:26px}
+  .nav b{font-size:11px}.nav small{display:none}
+  .card{padding:24px 20px}
+}
+@media (prefers-reduced-motion:reduce){
+  .track,.card,.nav .ico{transition-duration:.01s}
+}
+</style>
+</head>
+<body>
+<div class="stage">
+  <nav class="nav" aria-label="事業カテゴリ">
+    <button type="button" aria-pressed="true" data-i="0">
+      <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></span>
+      <b>エンベデッド<br>ビジネス</b><small>EMBEDDED BUSINESS</small>
+    </button>
+    <button type="button" aria-pressed="false" data-i="1">
+      <span class="ico"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="13" height="18" rx="2"/><path d="M17 6l3 2v11l-3 2"/></svg></span>
+      <b>エンタープライズ<br>ビジネス</b><small>ENTERPRISE BUSINESS</small>
+    </button>
+    <button type="button" aria-pressed="false" data-i="2">
+      <span class="ico"><svg viewBox="0 0 24 24"><path d="M5 16l1.5-5.5A2 2 0 018.4 9h7.2a2 2 0 011.9 1.5L19 16M4 16h16v3H4zM7 19v1.5M17 19v1.5"/><circle cx="8" cy="16" r=".6"/><circle cx="16" cy="16" r=".6"/></svg></span>
+      <b>オートモーティブ<br>ビジネス</b><small>AUTOMOTIVE BUSINESS</small>
+    </button>
+    <button type="button" aria-pressed="false" data-i="3">
+      <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg></span>
+      <b>ソリューション<br>ビジネス</b><small>SOLUTION BUSINESS</small>
+    </button>
+  </nav>
+
+  <section class="viewport" id="viewport" aria-live="polite">
+    <div class="track" id="track">
+      <article class="card is-active">
+        <svg class="watermark" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>
+        <h2>エンベデッドビジネス</h2>
+        <p>産業機器や組込みシステム向けに、プロセッサー、半導体、組込みボード、産業用コンピュータ、OS、セキュリティ製品などを提供します。</p>
+        <div class="img"><span>IMAGE 1</span></div>
+        <button class="more" type="button">主な製品を見る ›</button>
+      </article>
+      <article class="card">
+        <svg class="watermark" viewBox="0 0 24 24"><rect x="4" y="3" width="13" height="18" rx="2"/><path d="M17 6l3 2v11l-3 2"/></svg>
+        <h2>エンタープライズビジネス</h2>
+        <p>サーバー、ストレージ、ネットワーク関連製品を中心に、企業のシステムニーズに対応します。</p>
+        <div class="img"><span>IMAGE 2</span></div>
+        <button class="more" type="button">主な製品を見る ›</button>
+      </article>
+      <article class="card">
+        <svg class="watermark" viewBox="0 0 24 24"><path d="M5 16l1.5-5.5A2 2 0 018.4 9h7.2a2 2 0 011.9 1.5L19 16M4 16h16v3H4z"/></svg>
+        <h2>オートモーティブビジネス</h2>
+        <p>車載向けの半導体、ソフトウェア、開発ツールを提供し、次世代の車づくりを支えます。</p>
+        <div class="img"><span>IMAGE 3</span></div>
+        <button class="more" type="button">主な製品を見る ›</button>
+      </article>
+      <article class="card">
+        <svg class="watermark" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>
+        <h2>ソリューションビジネス</h2>
+        <p>お客様の課題に合わせて、ハードウェアとソフトウェアを組み合わせた最適なソリューションを提案します。</p>
+        <div class="img"><span>IMAGE 4</span></div>
+        <button class="more" type="button">主な製品を見る ›</button>
+      </article>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+  var track=document.getElementById('track'),
+      viewport=document.getElementById('viewport'),
+      cards=[].slice.call(track.children),
+      btns=[].slice.call(document.querySelectorAll('.nav button')),
+      cur=0, gap=32;
+
+  function layout(animate){
+    var vw=viewport.clientWidth;
+    var w=Math.min(560, Math.max(260, vw*0.78));
+    document.documentElement.style.setProperty('--w', w+'px');
+    document.documentElement.style.setProperty('--gap', gap+'px');
+    // 選択カードがスライダー領域の中央に来るよう移動
+    var x=vw/2-(cur*(w+gap)+w/2);
+    if(!animate){track.style.transition='none'}
+    track.style.transform='translateX('+x+'px)';
+    if(!animate){track.offsetHeight;track.style.transition=''}
+  }
+
+  function go(i){
+    cur=i;
+    cards.forEach(function(c,k){c.classList.toggle('is-active',k===i)});
+    btns.forEach(function(b,k){b.setAttribute('aria-pressed',k===i?'true':'false')});
+    layout(true);
+  }
+
+  btns.forEach(function(b){
+    b.addEventListener('click',function(){go(+b.dataset.i)});
+  });
+  cards.forEach(function(c,k){
+    c.addEventListener('click',function(){if(k!==cur)go(k)});
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowDown'||e.key==='ArrowRight') go(Math.min(cur+1,3));
+    if(e.key==='ArrowUp'||e.key==='ArrowLeft') go(Math.max(cur-1,0));
+  });
+  window.addEventListener('resize',function(){layout(false)});
+  layout(false);
+})();
+</script>
+</body>
+</html>
